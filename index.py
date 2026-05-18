@@ -2,23 +2,42 @@ from flask import Flask, request, jsonify
 import os
 import requests
 
-# 初始化 Flask 应用（Vercel 必须识别到这个 app 对象）
 app = Flask(__name__)
 
-# 从环境变量读取 API Key（和你在 Vercel 里添加的变量名要完全一致）
+# 从 Vercel 环境变量直接读取你的 KEY，不需要前端传递
 DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
 DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
 
-# 定义路由，和 OpenAI 接口格式兼容
-@app.route('/v1/chat/completions', methods=['POST'])
-def chat_completions():
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {DEEPSEEK_API_KEY}"
-    }
-    data = request.json
-    response = requests.post(DEEPSEEK_API_URL, headers=headers, json=data)
-    return jsonify(response.json()), response.status_code
+# 对话接口
+@app.route("/v1/chat/completions", methods=["POST"])
+def chat():
+    try:
+        # 获取前端传来的数据
+        data = request.get_json()
 
-if __name__ == '__main__':
-    app.run()
+        # 构造请求头（强制使用你自己的 KEY）
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {DEEPSEEK_API_KEY}"
+        }
+
+        # 转发请求到 DeepSeek 官方
+        resp = requests.post(
+            DEEPSEEK_API_URL,
+            headers=headers,
+            json=data
+        )
+
+        # 返回结果给 NextChat
+        return jsonify(resp.json()), resp.status_code
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# 主页（可选）
+@app.route("/")
+def home():
+    return "DeepSeek 代理服务运行中！"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080)
