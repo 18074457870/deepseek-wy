@@ -10,15 +10,49 @@
         .box{max-width:900px;margin:0 auto;padding:20px;}
         h2{text-align:center;color:#1677ff;margin-bottom:20px;}
         #chat{height:65vh;background:#fff;border-radius:12px;padding:15px;overflow-y:auto;margin-bottom:15px;}
-        .item{margin:12px 0;}
-        .user{display:flex;justify-content:flex-end;}
-        .user .txt{background:#1677ff;color:#fff;padding:10px 15px;border-radius:16px 16px 4px 16px;max-width:70%;}
-        .ai .txt{background:#e9e9eb;color:#333;padding:10px 15px;border-radius:16px 16px 16px 4px;max-width:70%;}
         .input-area{display:flex;gap:10px;}
-        #text{flex:1;padding:12px;border:1px solid #ddd;border-radius:8px;outline:none;font-size:15px;}
+        #user-input{
+    flex:1;
+    padding:12px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    outline:none;
+    font-size:15px;
+    resize:none;
+    min-height:50px;
+}
         #btn{padding:12px 25px;background:#1677ff;color:#fff;border:none;border-radius:8px;cursor:pointer;}
         #btn:hover{background:#0958d9;}
+        .user-message{
+    background:#1677ff;
+    color:white;
+    padding:14px 18px;
+    border-radius:18px;
+    max-width:75%;
+    margin:12px 0 12px auto;
+    line-height:1.7;
+    word-break:break-word;
+}
+        .bot-message{
+    background:#f1f1f1;
+    color:#333;
+    padding:14px 18px;
+    border-radius:18px;
+    max-width:75%;
+    margin:12px 0;
+    line-height:1.7;
+    word-break:break-word;
+}
+        .bot-message pre{
+    margin:0;
+    white-space:pre-wrap;
+    word-break:break-word;
+    font-size:16px;
+    line-height:1.7;
+    font-family:"微软雅黑";
+}
     </style>
+    
 </head>
 <body>
 <div class="box">
