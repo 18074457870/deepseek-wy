@@ -27,9 +27,13 @@ async function sendMessage() {
    if (!userText) return;
 
 messages.push({
-    role: "user",
-    content: userText
+  role: "user",
+  content: userText
 });
+
+if (userText.includes("我叫")) {
+    userName = userText.replace("我叫", "").trim();
+}
 
     // 显示用户消息
     chatBox.innerHTML += `
@@ -51,11 +55,29 @@ messages.push({
                 "Authorization": `Bearer ${API_KEY}`
             },
 
-            body: JSON.stringify({
-                model: "deepseek-chat",
-               messages: messages,
-                temperature: 0.7
-            })
+           body: JSON.stringify({
+    model: "deepseek-chat",
+    messages: [
+        {
+            role: "system",
+            content: `
+你是一个具有记忆能力的AI助手。
+
+如果用户说“我叫xxx”，
+你必须记住用户名字。
+
+之后如果用户问：
+“我叫什么”
+你必须正确回答用户名字。
+
+当前用户名字：
+${userName}
+`
+        },
+        ...messages
+    ],
+    temperature: 0.7
+})
 
         });
 
