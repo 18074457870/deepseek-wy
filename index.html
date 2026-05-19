@@ -3,202 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的AI助手</title>
+    <title>AI智能对话</title>
     <style>
-        :root {
-            --bg-color: #f5f5f5;
-            --text-color: #333;
-            --user-bg: #007bff;
-            --assistant-bg: #fff;
-            --border-color: #ddd;
-        }
-        .dark-mode {
-            --bg-color: #1e1e1e;
-            --text-color: #eee;
-            --user-bg: #0d6efd;
-            --assistant-bg: #2d2d2d;
-            --border-color: #444;
-        }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 0 20px;
-            transition: all 0.3s;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        #chat-container {
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            height: 450px;
-            overflow-y: auto;
-            padding: 20px;
-            margin-bottom: 15px;
-            background-color: var(--assistant-bg);
-        }
-        .message {
-            margin: 12px 0;
-            max-width: 75%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            line-height: 1.5;
-        }
-        .user {
-            background-color: var(--user-bg);
-            color: white;
-            margin-left: auto;
-            border-bottom-right-radius: 4px;
-        }
-        .assistant {
-            background-color: var(--border-color);
-            margin-right: auto;
-            border-bottom-left-radius: 4px;
-        }
-        #input-area {
-            display: flex;
-            gap: 10px;
-        }
-        #user-input {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            resize: none;
-            background-color: var(--assistant-bg);
-            color: var(--text-color);
-        }
-        button {
-            padding: 12px 24px;
-            background-color: #2196f3;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        button:hover {
-            background-color: #1976d2;
-        }
-        .loading {
-            color: #888;
-            font-style: italic;
-        }
-        .theme-btn {
-            background: none;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:#f0f2f5;font-family:微软雅黑;}
+        .box{max-width:900px;margin:0 auto;padding:20px;}
+        h2{text-align:center;color:#1677ff;margin-bottom:20px;}
+        #chat{height:65vh;background:#fff;border-radius:12px;padding:15px;overflow-y:auto;margin-bottom:15px;}
+        .item{margin:12px 0;}
+        .user{display:flex;justify-content:flex-end;}
+        .user .txt{background:#1677ff;color:#fff;padding:10px 15px;border-radius:16px 16px 4px 16px;max-width:70%;}
+        .ai .txt{background:#e9e9eb;color:#333;padding:10px 15px;border-radius:16px 16px 16px 4px;max-width:70%;}
+        .input-area{display:flex;gap:10px;}
+        #text{flex:1;padding:12px;border:1px solid #ddd;border-radius:8px;outline:none;font-size:15px;}
+        #btn{padding:12px 25px;background:#1677ff;color:#fff;border:none;border-radius:8px;cursor:pointer;}
+        #btn:hover{background:#0958d9;}
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>我的AI助手</h1>
-        <button class="theme-btn" onclick="toggleTheme()">切换主题</button>
+<div class="box">
+    <h2>AI智能对话助手</h2>
+    <div id="chat"></div>
+    <div class="input-area">
+        <input type="text" id="text" placeholder="输入问题回车发送">
+        <button id="btn">发送</button>
     </div>
+</div>
 
-    <div id="chat-container"></div>
+<script>
+const chat = document.getElementById('chat');
+const text = document.getElementById('text');
+const btn = document.getElementById('btn');
 
-    <div id="input-area">
-        <textarea id="user-input" placeholder="输入你的问题...（Shift+Enter发送）" rows="1"></textarea>
-        <button onclick="sendMessage()">发送</button>
-    </div>
+// 填你的接口密钥
+const APIKEY = "sk-b291304252414f52a0b0a1a74c017f5e";
+const URL = "https://api.deepseek.com/v1/chat/completions";
 
-    <script>
-        // 替换成你的 API Key 和 接口地址
-        const API_KEY = "sk-b291304252414f52a0b0a1a74c017f5e"; // 你的 API Key
-        const API_URL = "https://18074457870.github.io/deepseek-wy/";
+function addMsg(role,content){
+    let div = document.createElement('div');
+    div.className = role;
+    div.innerHTML = `<div class="txt">${content}</div>`;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
 
-        // 从本地存储加载对话历史
-        let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
-        renderMessages();
+async function send(){
+    let msg = text.value.trim();
+    if(!msg)return;
+    addMsg("user",msg);
+    text.value = "";
+    addMsg("ai","正在思考中...");
 
-        // 主题切换
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-        }
+    let res = await fetch(URL,{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json",
+            "Authorization":"Bearer "+APIKEY
+        },
+        body:JSON.stringify({
+            model:"deepseek-chat",
+            messages:[{"role":"user","content":msg}]
+        })
+    })
+    let data = await res.json();
+    chat.removeChild(chat.lastElementChild);
+    addMsg("ai",data.choices[0].message.content);
+}
 
-        async function sendMessage() {
-            const input = document.getElementById('user-input');
-            const message = input.value.trim();
-            if (!message) return;
-
-            // 添加用户消息
-            chatHistory.push({ role: 'user', content: message });
-            input.value = '';
-            renderMessages();
-
-            // 添加加载动画
-            const loadingId = addLoadingMessage();
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${API_KEY}`
-                    },
-                    body: JSON.stringify({
-                        model: "gpt-3.5-turbo",
-                        messages: chatHistory.slice(-10) // 只保留最近10条对话，防止超出token限制
-                    })
-                });
-
-                const data = await response.json();
-                if (data.error) throw new Error(data.error.message);
-
-                const reply = data.choices[0].message.content;
-                chatHistory.push({ role: "assistant", content: reply });
-                localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-            } catch (error) {
-                chatHistory.push({ role: "assistant", content: "出错了：" + error.message });
-            } finally {
-                // 移除加载动画，重新渲染
-                document.getElementById(loadingId)?.remove();
-                renderMessages();
-            }
-        }
-
-        function renderMessages() {
-            const container = document.getElementById('chat-container');
-            container.innerHTML = '';
-            chatHistory.forEach((msg, index) => {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${msg.role}`;
-                messageDiv.textContent = msg.content;
-                container.appendChild(messageDiv);
-            });
-            container.scrollTop = container.scrollHeight;
-        }
-
-        function addLoadingMessage() {
-            const id = 'loading-' + Date.now();
-            const container = document.getElementById('chat-container');
-            const loadingDiv = document.createElement('div');
-            loadingDiv.id = id;
-            loadingDiv.className = 'message assistant loading';
-            loadingDiv.textContent = 'AI正在思考...';
-            container.appendChild(loadingDiv);
-            container.scrollTop = container.scrollHeight;
-            return id;
-        }
-
-        // Shift+Enter发送
-        document.getElementById('user-input').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-    </script>
+btn.onclick = send;
+text.onkeydown = e=>e.key==='Enter'&&send();
+</script>
 </body>
 </html>
