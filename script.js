@@ -1,9 +1,10 @@
 let messages = [
-    {
-        role: "system",
-        content: "你是一个有记忆的AI助手，请记住用户之前说的话，并结合上下文回答。"
-    }
+   {
+      role: "system",
+      content: "你是一个有长期上下文记忆的AI助手，请记住用户之前说的话，并结合历史聊天记录回答。"
+   }
 ];
+
 
 async function sendMessage() {
 
