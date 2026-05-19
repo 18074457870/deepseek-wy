@@ -1,3 +1,5 @@
+let messages = [];
+
 async function sendMessage() {
 
     const input = document.getElementById("user-input");
@@ -5,7 +7,12 @@ async function sendMessage() {
 
     const userText = input.value.trim();
 
-    if (!userText) return;
+   if (!userText) return;
+
+messages.push({
+    role: "user",
+    content: userText
+});
 
     // 显示用户消息
     chatBox.innerHTML += `
@@ -29,12 +36,7 @@ async function sendMessage() {
 
             body: JSON.stringify({
                 model: "deepseek-chat",
-                messages: [
-                    {
-                        role: "user",
-                        content: userText
-                    }
-                ],
+               messages: messages,
                 temperature: 0.7
             })
 
@@ -48,8 +50,12 @@ async function sendMessage() {
         console.log(data);
 
         const reply =
-            data.choices?.[0]?.message?.content ||
-            "AI没有返回内容";
+data.choices?.[0]?.message?.content || "AI没有返回内容";
+
+messages.push({
+    role: "assistant",
+    content: reply
+});
 
         chatBox.innerHTML += `
             <div class="bot-message">${reply}</div>
