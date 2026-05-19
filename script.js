@@ -18,7 +18,7 @@ async function sendMessage() {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer 你的API_KEY"
+                "Authorization": "Bearer sk-b291304252414f52a0b0a1a74c017f5e"
             },
             body: JSON.stringify({
                 model: "deepseek-chat",
