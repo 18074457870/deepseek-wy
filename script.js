@@ -24,7 +24,7 @@ const chatBox = document.getElementById("chat");
 const sendBtn = document.getElementById("btn");
 
 // DeepSeek API
-const API_KEY = "sk-b291304252414f52a0b0a1a74c017f5e";
+const API_KEY = "sk-3990648bc54a4454bc52790fe2cb91dc";
 
 const API_URL = "https://api.deepseek.com/v1/chat/completions";
 
