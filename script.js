@@ -77,10 +77,10 @@ async function sendMessage() {
 
             method: "POST",
 
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${API_KEY}`
-            },
+           headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${API_KEY}`
+},
 
             body: JSON.stringify({
 
