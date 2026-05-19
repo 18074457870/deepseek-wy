@@ -96,9 +96,11 @@ messages.push({
     content: reply
 });
 
-        chatBox.innerHTML += `
-            <div class="bot-message">${reply}</div>
-        `;
+       chatBox.innerHTML += `
+<div class="bot-message">
+    <pre>${reply}</pre>
+</div>
+`;
 
     } catch (error) {
 
@@ -109,5 +111,11 @@ messages.push({
         `;
 
         console.error(error);
+    }
+}
+
+function handleKey(event) {
+    if (event.key === "Enter") {
+        sendMessage();
     }
 }
