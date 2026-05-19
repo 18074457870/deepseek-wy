@@ -25,7 +25,12 @@
     <h2>DeepSeek助手</h2>
     <div id="chat"></div>
     <div class="input-area">
-        <input type="text" id="text" placeholder="输入问题回车发送">
+        <input
+  type="text"
+  id="user-input"
+  placeholder="输入问题回车发送"
+  onkeydown="handleKey(event)"
+/>
         <button id="btn">发送</button>
     </div>
 </div>
