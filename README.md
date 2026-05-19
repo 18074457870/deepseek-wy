@@ -1,4 +1,4 @@
-# MY TOKEN
+# WY TOKEN
 
 Official website for MY TOKEN.
 
