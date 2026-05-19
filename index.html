@@ -1,17 +1,53 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI智能对话</title>
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box;}
-        body{background:#f0f2f5;font-family:微软雅黑;}
-        .box{max-width:900px;margin:0 auto;padding:20px;}
-        h2{text-align:center;color:#1677ff;margin-bottom:20px;}
-        #chat{height:65vh;background:#fff;border-radius:12px;padding:15px;overflow-y:auto;margin-bottom:15px;}
-        .input-area{display:flex;gap:10px;}
-        #user-input{
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeepSeek助手</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#f0f2f5;
+    font-family:"微软雅黑";
+}
+
+.box{
+    max-width:900px;
+    margin:0 auto;
+    padding:20px;
+}
+
+h2{
+    text-align:center;
+    color:#1677ff;
+    margin-bottom:20px;
+}
+
+#chat{
+    height:65vh;
+    background:#fff;
+    border-radius:12px;
+    padding:15px;
+    overflow-y:auto;
+    margin-bottom:15px;
+
+    display:flex;
+    flex-direction:column;
+}
+
+.input-area{
+    display:flex;
+    gap:10px;
+}
+
+#user-input{
     flex:1;
     padding:12px;
     border:1px solid #ddd;
@@ -20,10 +56,25 @@
     font-size:15px;
     resize:none;
     min-height:50px;
+    font-family:"微软雅黑";
 }
-        #btn{padding:12px 25px;background:#1677ff;color:#fff;border:none;border-radius:8px;cursor:pointer;}
-        #btn:hover{background:#0958d9;}
-        .user-message{
+
+#btn{
+    padding:12px 25px;
+    background:#1677ff;
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:15px;
+    transition:0.2s;
+}
+
+#btn:hover{
+    background:#0958d9;
+}
+
+.user-message{
     background:#1677ff;
     color:white;
     padding:14px 18px;
@@ -33,7 +84,8 @@
     line-height:1.7;
     word-break:break-word;
 }
-        .bot-message{
+
+.bot-message{
     background:#f1f1f1;
     color:#333;
     padding:14px 18px;
@@ -43,7 +95,8 @@
     line-height:1.7;
     word-break:break-word;
 }
-        .bot-message pre{
+
+.bot-message pre{
     margin:0;
     white-space:pre-wrap;
     word-break:break-word;
@@ -51,66 +104,148 @@
     line-height:1.7;
     font-family:"微软雅黑";
 }
-    </style>
-    
+
+.loading{
+    opacity:0.7;
+}
+
+</style>
+
 </head>
+
 <body>
+
 <div class="box">
+
     <h2>DeepSeek助手</h2>
+
     <div id="chat"></div>
+
     <div class="input-area">
-        <input
-  type="text"
-  id="user-input"
-  placeholder="输入问题回车发送"
-  onkeydown="handleKey(event)"
-/>
+
+        <textarea
+            id="user-input"
+            placeholder="输入问题，Enter发送，Shift+Enter换行"
+            onkeydown="handleKey(event)"
+        ></textarea>
+
         <button id="btn">发送</button>
+
     </div>
+
 </div>
 
 <script>
+
 const chat = document.getElementById('chat');
-const text = document.getElementById('text');
+const input = document.getElementById('user-input');
 const btn = document.getElementById('btn');
 
-// 填你的接口密钥
-const APIKEY = "sk-b291304252414f52a0b0a1a74c017f5e";
+const APIKEY = "你的APIKEY";
 const URL = "https://api.deepseek.com/v1/chat/completions";
 
-function addMsg(role,content){
-    let div = document.createElement('div');
-    div.className = role;
-    div.innerHTML = `<div class="txt">${content}</div>`;
-    chat.appendChild(div);
+function addUserMessage(content){
+
+    chat.innerHTML += `
+        <div class="user-message">
+            ${content}
+        </div>
+    `;
+
     chat.scrollTop = chat.scrollHeight;
 }
 
-async function send(){
-    let msg = text.value.trim();
-    if(!msg)return;
-    addMsg("user",msg);
-    text.value = "";
-    addMsg("ai","正在思考中...");
+function addBotMessage(content){
 
-    let res = await fetch(URL,{
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json",
-            "Authorization":"Bearer "+APIKEY
-        },
-        body:JSON.stringify({
-            model:"deepseek-chat",
-            messages:[{"role":"user","content":msg}]
-        })
-    })
-    let data = await res.json();
-    chat.removeChild(chat.lastElementChild);
-    addMsg("ai",data.choices[0].message.content);
+    chat.innerHTML += `
+        <div class="bot-message">
+            <pre>${content}</pre>
+        </div>
+    `;
+
+    chat.scrollTop = chat.scrollHeight;
 }
 
-btn.onclick = send;
-text.onkeydown = e=>e.key==='Enter'&&send();
+async function sendMessage(){
+
+    const msg = input.value.trim();
+
+    if(!msg) return;
+
+    addUserMessage(msg);
+
+    input.value = "";
+
+    chat.innerHTML += `
+        <div class="bot-message loading" id="loading">
+            正在思考中...
+        </div>
+    `;
+
+    chat.scrollTop = chat.scrollHeight;
+
+    try{
+
+        const response = await fetch(URL,{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":"Bearer " + APIKEY
+            },
+
+            body:JSON.stringify({
+
+                model:"deepseek-chat",
+
+                messages:[
+                    {
+                        role:"user",
+                        content:msg
+                    }
+                ]
+
+            })
+
+        });
+
+        const data = await response.json();
+
+        document.getElementById("loading").remove();
+
+        const reply =
+        data.choices?.[0]?.message?.content || "AI没有返回内容";
+
+        addBotMessage(reply);
+
+    }catch(error){
+
+        document.getElementById("loading").remove();
+
+        addBotMessage("出错了：" + error.message);
+
+        console.error(error);
+
+    }
+
+}
+
+function handleKey(event){
+
+    if(event.key === "Enter" && !event.shiftKey){
+
+        event.preventDefault();
+
+        sendMessage();
+
+    }
+
+}
+
+btn.onclick = sendMessage;
+
 </script>
+
 </body>
 </html>
